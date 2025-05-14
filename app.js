@@ -1,8 +1,8 @@
 const express = require('express');
 const connectToDb = require('./config/connectToDb');
 require('dotenv').config();
-const authRoute = require('./routes/authRoute')
-
+const authRoute = require('./routes/authRoute');
+const { errorHandler, notFound } = require('./middlewares/error');
 
 // Connection To db
 connectToDb();
@@ -15,7 +15,15 @@ const app = express();
 app.use(express.json());
 
 // Routes
-app.use('/api/auth', authRoute);
+app.use('/api/auth', require('./routes/authRoute'));
+app.use('/api/users', require('./routes/usersRoute'));
+app.use('/api/posts', require('./routes/postsRoute'));
+app.use('/api/comments', require('./routes/commentsRoute'));
+app.use('/api/categories', require('./routes/categoriesRoute'));
+
+// Error Handler Middleware
+app.use(notFound);
+app.use(errorHandler);
 
 // Running the server
 const PORT = process.env.PORT || 8000;
