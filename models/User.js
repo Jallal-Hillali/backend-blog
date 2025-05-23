@@ -1,8 +1,9 @@
-const mongoose = require('mongoose');
-const Joi = require('joi');
-const jwt = require('jsonwebtoken');
+const mongoose = require("mongoose");
+const Joi = require("joi");
+const jwt = require("jsonwebtoken");
+const passwordComplexity = require("joi-password-complexity");
 
-//User Schema
+// User Schema
 const UserSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -28,84 +29,103 @@ const UserSchema = new mongoose.Schema({
     profilePhoto: {
         type: Object,
         default: {
-            url: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
-            public_id: 'null',
-        },
+            url: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460__480.png",
+            publicId: null,
+        }
     },
     bio: {
         type: String,
     },
     isAdmin: {
-        type: Boolean,
+        type:Boolean,
         default: false,
     },
     isAccountVerified: {
-        type: Boolean,
+        type:Boolean,
         default: false,
     },
-
-    // Add 2 properties createdAt and updatedAt are createdAt
-}, { 
+}, {
     timestamps: true,
-    toJSON: {
-        virtuals: true,
-    },
-    toObject: {
-        virtuals: true,
-    },
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-//Populate Posts that belongs to this User When he/she Get her Profile
-UserSchema.virtual('posts', {
-    ref: 'Post',
-    foreignField: 'user',
-    localField: '_id',
+// Populate Posts That Belongs To This User When he/she Get his/her Profile
+UserSchema.virtual("posts", {
+    ref: "Post",
+    foreignField: "user",
+    localField: "_id",
 });
 
-//Generate Auth Token
-UserSchema.methods.generateAuthToken = function () {
-    return jwt.sign({ id: this._id, isAdmin: this.isAdmin }, process.env.JWT_SECRET);
+
+// Generate Auth Token
+UserSchema.methods.generateAuthToken = function() {
+    return jwt.sign({id: this._id, isAdmin: this.isAdmin}, process.env.JWT_SECRET);
 }
 
-//User Model
-const User = mongoose.model('User', UserSchema);
+// User Model
+const User = mongoose.model("User", UserSchema);
 
-// Validate register user data
-function validateRegisterUser(obj) {
+// Validate Register User
+export function validateRegisterUser(obj) {
     const schema = Joi.object({
         username: Joi.string().trim().min(2).max(100).required(),
         email: Joi.string().trim().min(5).max(100).required().email(),
-        password: Joi.string().trim().min(8).required(),
-
-    });    
+        password: passwordComplexity().required(),
+    });
     return schema.validate(obj);
 }
 
-// Validate login user data
-function validateLoginUser(obj) {
+// Validate Login User
+export function validateLoginUser(obj) {
     const schema = Joi.object({
         email: Joi.string().trim().min(5).max(100).required().email(),
         password: Joi.string().trim().min(8).required(),
-
-    });    
+    });
     return schema.validate(obj);
 }
 
-
-// Validate Update user data
+// Validate Update User
 function validateUpdateUser(obj) {
     const schema = Joi.object({
         username: Joi.string().trim().min(2).max(100),
-        password: Joi.string().trim().min(8),
+        password: passwordComplexity(),
         bio: Joi.string(),
+    });
+    return schema.validate(obj);
+}
 
-    });    
+// Validate Email
+// function validateEmail(obj) {
+//     const schema = Joi.object({
+//         email: Joi.string().trim().min(5).max(100).required().email(),
+//     });
+//     return schema.validate(obj);
+// }
+
+// Validate New Password
+function validateNewPassword(obj) {
+    const schema = Joi.object({
+        password: passwordComplexity().required(),
+    });
     return schema.validate(obj);
 }
 
 module.exports = {
     User,
-    validateRegisterUser,
-    validateLoginUser,
-    validateUpdateUser
-} 
+    // validateRegisterUser,
+    // validateLoginUser,
+    validateUpdateUser,
+    // validateEmail,
+    validateNewPassword
+}
+
+// const schema = Joi.object({
+//     username: Joi.string().trim().min(2).max(100).messages({
+//         'any.required': 'الاسم مطلوب',
+//         'string.base': 'الاسم لازم يكون من نوع نص',
+//         'string.empty': 'رجاء ادخال الاسم',
+//         'string.min': 'لا يجوز الاسم يكون اقل من ثلاثة حروف',
+//         'string.max': 'لا يجوز الاسم يكون اكثر من مئه حروف',
+//     }),
+// });

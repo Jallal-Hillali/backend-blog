@@ -1,16 +1,16 @@
-const mongoose = require('mongoose');
-const Joi = require('joi');
+const mongoose = require("mongoose");
+const Joi = require("joi");
 
 // Comment Schema
 const CommentSchema = new mongoose.Schema({
     postId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Post',
+        ref: "Post",
         required: true,
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: "User",
         required: true,
     },
     text: {
@@ -21,14 +21,14 @@ const CommentSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-}, { 
+}, {
     timestamps: true,
 });
 
 // Comment Model
-const Comment = mongoose.model('Comment', CommentSchema);
+const Comment = mongoose.model("Comment", CommentSchema);
 
-// Validation Create Comment
+// Validate Create Comment
 function validateCreateComment(obj) {
     const schema = Joi.object({
         postId: Joi.string().required().label("Post ID"),
@@ -37,7 +37,7 @@ function validateCreateComment(obj) {
     return schema.validate(obj);
 }
 
-// Validation Update Comment
+// Validate Update Comment
 function validateUpdateComment(obj) {
     const schema = Joi.object({
         text: Joi.string().trim().required(),

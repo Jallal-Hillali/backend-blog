@@ -1,11 +1,11 @@
-const mongoose = require('mongoose');
-const Joi = require('joi');
+const mongoose = require("mongoose");
+const Joi = require("joi");
 
 // Category Schema
 const CategorySchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: "User",
         required: true,
     },
     title: {
@@ -13,14 +13,14 @@ const CategorySchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
-}, { 
+}, {
     timestamps: true,
 });
 
 // Category Model
-const Category = mongoose.model('Category', CategorySchema);
+const Category = mongoose.model("Category", CategorySchema);
 
-// Validation Create Category
+// Validate Create Category
 function validateCreateCategory(obj) {
     const schema = Joi.object({
         title: Joi.string().trim().required().label("Title"),
@@ -28,8 +28,9 @@ function validateCreateCategory(obj) {
     return schema.validate(obj);
 }
 
+
 module.exports = {
     Category,
-    validateCreateCategory,
+    validateCreateCategory
 }
 
